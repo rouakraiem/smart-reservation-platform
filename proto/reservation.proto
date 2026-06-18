@@ -1,0 +1,111 @@
+syntax = "proto3";
+
+package reservation;
+
+service ReservationService {
+  rpc CreateReservation(CreateReservationRequest) returns (ReservationResponse);
+  rpc GetReservation(GetReservationRequest)       returns (ReservationResponse);
+  rpc UpdateReservation(UpdateReservationRequest) returns (ReservationResponse);
+  rpc CancelReservation(CancelReservationRequest) returns (DeleteResponse);
+  rpc ListReservations(ListReservationsRequest)   returns (ListReservationsResponse);
+  rpc CreateResource(CreateResourceRequest)       returns (ResourceResponse);
+  rpc ListResources(ListResourcesRequest)         returns (ListResourcesResponse);
+  rpc GetAvailableSlots(GetSlotsRequest)          returns (GetSlotsResponse);
+}
+
+// ─── Reservation messages ────────────────────────────────────
+message CreateReservationRequest {
+  string user_id      = 1;
+  string resource_id  = 2;
+  string date         = 3;   // "YYYY-MM-DD"
+  string start_time   = 4;   // "HH:mm"
+  string end_time     = 5;   // "HH:mm"
+  string notes        = 6;
+}
+
+message GetReservationRequest    { string id = 1; }
+message CancelReservationRequest { string id = 1; }
+
+message UpdateReservationRequest {
+  string id         = 1;
+  string date       = 2;
+  string start_time = 3;
+  string end_time   = 4;
+  string notes      = 5;
+}
+
+message ListReservationsRequest {
+  string user_id = 1;   // optional filter
+}
+
+message Reservation {
+  string id          = 1;
+  string user_id     = 2;
+  string resource_id = 3;
+  string date        = 4;
+  string start_time  = 5;
+  string end_time    = 6;
+  string status      = 7;   // "active" | "cancelled"
+  string notes       = 8;
+  string created_at  = 9;
+}
+
+message ReservationResponse {
+  bool        success     = 1;
+  string      message     = 2;
+  Reservation reservation = 3;
+}
+
+message ListReservationsResponse {
+  bool               success      = 1;
+  repeated Reservation reservations = 2;
+}
+
+// ─── Resource messages ───────────────────────────────────────
+message CreateResourceRequest {
+  string name        = 1;
+  string type        = 2;   // "salle" | "bureau" | "terrain" …
+  int32  capacity    = 3;
+  string description = 4;
+}
+
+message ListResourcesRequest {}
+message GetSlotsRequest {
+  string resource_id = 1;
+  string date        = 2;   // "YYYY-MM-DD"
+}
+
+message Resource {
+  string id          = 1;
+  string name        = 2;
+  string type        = 3;
+  int32  capacity    = 4;
+  string description = 5;
+}
+
+message ResourceResponse {
+  bool     success  = 1;
+  string   message  = 2;
+  Resource resource = 3;
+}
+
+message ListResourcesResponse {
+  bool              success   = 1;
+  repeated Resource resources = 2;
+}
+
+message TimeSlot {
+  string start_time = 1;
+  string end_time   = 2;
+  bool   available  = 3;
+}
+
+message GetSlotsResponse {
+  bool             success = 1;
+  repeated TimeSlot slots  = 2;
+}
+
+message DeleteResponse {
+  bool   success = 1;
+  string message = 2;
+}

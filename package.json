@@ -1,0 +1,21 @@
+{
+  "name": "smart-reservation-platform",
+  "version": "1.0.0",
+  "description": "Plateforme de Réservation Intelligente — Architecture Microservices",
+  "private": true,
+  "scripts": {
+    "install:all": "cd user-service && npm install && cd ../reservation-service && npm install && cd ../notification-service && npm install && cd ../api-gateway && npm install",
+    "start:user":         "cd user-service && npm start",
+    "start:reservation":  "cd reservation-service && npm start",
+    "start:notification": "cd notification-service && npm start",
+    "start:gateway":      "cd api-gateway && npm start",
+    "docker:up":   "docker-compose up --build",
+    "docker:down": "docker-compose down",
+    "test":        "node tests/test-e2e.js"
+  },
+  "author": "Étudiants SoA & Microservices",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
