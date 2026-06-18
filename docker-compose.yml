@@ -1,0 +1,138 @@
+services:
+  # ─── Kafka Infrastructure ──────────────────────────────────────
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.0
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - reservation-net
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.0
+    container_name: kafka-broker
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:29092
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    healthcheck:
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "kafka:9092"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - reservation-net
+
+  # ─── Microservices ─────────────────────────────────────────────
+  user-service:
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+    container_name: user-service
+    depends_on:
+      kafka:
+        condition: service_healthy
+    environment:
+      USER_SERVICE_PORT: 50051
+      KAFKA_BROKER: kafka:9092
+    ports:
+      - "50051:50051"
+    volumes:
+      - ./user-service/src:/app/src
+      - user-data:/app/data
+      - ./proto:/proto
+    networks:
+      - reservation-net
+    restart: unless-stopped
+
+  reservation-service:
+    build:
+      context: ./reservation-service
+      dockerfile: Dockerfile
+    container_name: reservation-service
+    depends_on:
+      kafka:
+        condition: service_healthy
+    environment:
+      RESERVATION_SERVICE_PORT: 50052
+      KAFKA_BROKER: kafka:9092
+    ports:
+      - "50052:50052"
+    volumes:
+      - ./reservation-service/src:/app/src
+      - reservation-data:/app/data
+      - ./proto:/proto
+    networks:
+      - reservation-net
+    restart: unless-stopped
+
+  notification-service:
+    build:
+      context: ./notification-service
+      dockerfile: Dockerfile
+    container_name: notification-service
+    depends_on:
+      kafka:
+        condition: service_healthy
+    environment:
+      NOTIFICATION_SERVICE_PORT: 50053
+      KAFKA_BROKER: kafka:9092
+    ports:
+      - "50053:50053"
+    volumes:
+      - ./notification-service/src:/app/src
+      - notification-data:/app/data
+      - ./proto:/proto
+    networks:
+      - reservation-net
+    restart: unless-stopped
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: api-gateway
+    depends_on:
+      - user-service
+      - reservation-service
+      - notification-service
+    environment:
+      GATEWAY_PORT: 3000
+      USER_SERVICE_HOST: user-service
+      USER_SERVICE_PORT: 50051
+      RESERVATION_SERVICE_HOST: reservation-service
+      RESERVATION_SERVICE_PORT: 50052
+      NOTIFICATION_SERVICE_HOST: notification-service
+      NOTIFICATION_SERVICE_PORT: 50053
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./api-gateway/src:/app/src
+      - ./proto:/proto
+    networks:
+      - reservation-net
+    restart: unless-stopped
+
+# ─── Volumes persistants ────────────────────────────────────────
+volumes:
+  user-data:
+  reservation-data:
+  notification-data:
+
+# ─── Réseau interne ─────────────────────────────────────────────
+networks:
+  reservation-net:
+    driver: bridge

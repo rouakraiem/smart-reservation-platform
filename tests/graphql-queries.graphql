@@ -1,0 +1,226 @@
+# ============================================================
+#   SMART RESERVATION PLATFORM — Exemples de requêtes GraphQL
+#   URL : http://localhost:3000/graphql
+# ============================================================
+
+# ─── QUERIES ────────────────────────────────────────────────
+
+# Lister tous les utilisateurs (champs choisis par le client)
+query ListUsers {
+  users {
+    id
+    name
+    email
+    created_at
+  }
+}
+
+# ---
+
+# Obtenir un utilisateur spécifique
+query GetUser {
+  user(id: "USER_ID_ICI") {
+    id
+    name
+    email
+  }
+}
+
+# ---
+
+# Lister les ressources disponibles
+query ListResources {
+  resources {
+    id
+    name
+    type
+    capacity
+    description
+  }
+}
+
+# ---
+
+# Voir les créneaux disponibles d'une ressource
+query AvailableSlots {
+  availableSlots(resourceId: "RESOURCE_ID_ICI", date: "2025-12-20") {
+    start_time
+    end_time
+    available
+  }
+}
+
+# ---
+
+# Lister les réservations d'un utilisateur
+query UserReservations {
+  reservations(userId: "USER_ID_ICI") {
+    id
+    resource_id
+    date
+    start_time
+    end_time
+    status
+    notes
+  }
+}
+
+# ---
+
+# Notifications d'un utilisateur (seulement les champs nécessaires)
+query UserNotifications {
+  notifications(userId: "USER_ID_ICI") {
+    id
+    type
+    message
+    is_read
+    created_at
+  }
+}
+
+# ---
+
+# Requête combinée : utilisateur + ses réservations + ses notifications
+# (Démontre la puissance de GraphQL – un seul appel réseau)
+query Dashboard {
+  user(id: "USER_ID_ICI") {
+    id
+    name
+    email
+  }
+  reservations(userId: "USER_ID_ICI") {
+    id
+    date
+    start_time
+    end_time
+    status
+  }
+  notifications(userId: "USER_ID_ICI") {
+    type
+    message
+    is_read
+  }
+}
+
+# ─── MUTATIONS ──────────────────────────────────────────────
+
+# Créer un utilisateur
+mutation CreateUser {
+  createUser(name: "Fatma Ben Ali", email: "fatma@example.com", password: "secure123") {
+    id
+    name
+    email
+    created_at
+  }
+}
+
+# ---
+
+# Connexion
+mutation Login {
+  login(email: "fatma@example.com", password: "secure123") {
+    success
+    message
+    user {
+      id
+      name
+    }
+  }
+}
+
+# ---
+
+# Mettre à jour un utilisateur
+mutation UpdateUser {
+  updateUser(id: "USER_ID_ICI", name: "Fatma Ben Ali-Trabelsi") {
+    id
+    name
+    email
+  }
+}
+
+# ---
+
+# Ajouter une ressource réservable
+mutation CreateResource {
+  createResource(
+    name: "Salle Atlas"
+    type: "salle_conference"
+    capacity: 20
+    description: "Grande salle de conférence avec équipement audiovisuel"
+  ) {
+    id
+    name
+    type
+    capacity
+  }
+}
+
+# ---
+
+# Créer une réservation
+mutation CreateReservation {
+  createReservation(
+    userId: "USER_ID_ICI"
+    resourceId: "RESOURCE_ID_ICI"
+    date: "2025-12-22"
+    startTime: "14:00"
+    endTime: "15:00"
+    notes: "Présentation projet de fin d'année"
+  ) {
+    id
+    date
+    start_time
+    end_time
+    status
+    notes
+  }
+}
+
+# ---
+
+# Modifier une réservation
+mutation UpdateReservation {
+  updateReservation(
+    id: "RESERVATION_ID_ICI"
+    startTime: "15:00"
+    endTime: "16:00"
+    notes: "Reporté d'une heure"
+  ) {
+    id
+    date
+    start_time
+    end_time
+    notes
+  }
+}
+
+# ---
+
+# Annuler une réservation
+mutation CancelReservation {
+  cancelReservation(id: "RESERVATION_ID_ICI") {
+    success
+    message
+  }
+}
+
+# ---
+
+# Supprimer un utilisateur
+mutation DeleteUser {
+  deleteUser(id: "USER_ID_ICI") {
+    success
+    message
+  }
+}
+
+# ---
+
+# Marquer une notification comme lue
+mutation MarkRead {
+  markNotificationRead(id: "NOTIFICATION_ID_ICI") {
+    success
+    message
+  }
+}

@@ -1,0 +1,154 @@
+{
+	"info": {
+		"_postman_id": "a1b2c3d4-e5f6-4a5b-b6c7-d8e9f0a1b2c3",
+		"name": "Smart Reservation Platform",
+		"description": "Collection de tests pour la Plateforme de Réservation Intelligente (REST & GraphQL)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "REST API",
+			"item": [
+				{
+					"name": "Users",
+					"item": [
+						{
+							"name": "Create User (Alice)",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Alice Postman\",\n    \"email\": \"alice.postman@example.com\",\n    \"password\": \"password123\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:3000/api/users",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"api",
+										"users"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "List Users",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:3000/api/users",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"api",
+										"users"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Resources",
+					"item": [
+						{
+							"name": "Create Resource",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Salle de Conférence A\",\n    \"type\": \"Meeting Room\",\n    \"capacity\": 10,\n    \"description\": \"Équipée de projecteur\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:3000/api/resources",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"api",
+										"resources"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "List Resources",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:3000/api/resources",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3000",
+									"path": [
+										"api",
+										"resources"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "GraphQL API",
+			"item": [
+				{
+					"name": "Get All Users",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query {\n  users {\n    id\n    name\n    email\n  }\n}",
+								"variables": ""
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/graphql",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
